@@ -3,22 +3,71 @@ package ru.frozenpriest.simplemangareader
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import ru.frozenpriest.simplemangareader.data.mangas
+import ru.frozenpriest.simplemangareader.ui.Screen
+import ru.frozenpriest.simplemangareader.ui.screens.library.Library
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 
 class MainActivity : ComponentActivity() {
+    val items = listOf(
+        Screen.Library,
+        Screen.Explore,
+    )
+
+
+    @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SimpleMangaReaderTheme {
                 // A surface container using the 'background' color from the theme
-                
-                Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
+                val navController = rememberNavController()
+
+
+                Scaffold(
+                    bottomBar = {
+                        BottomNavigation {
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentRoute = navBackStackEntry?.destination?.route
+                            items.forEach { screen ->
+                                BottomNavigationItem(
+                                    icon = {
+                                        Icon(
+                                            screen.icon,
+                                            stringResource(id = screen.resourceId)
+                                        )
+                                    },
+                                    label = { Text(stringResource(screen.resourceId)) },
+                                    selected = currentRoute == screen.route,
+                                    onClick = {
+                                        navController.navigate(screen.route) {
+                                            popUpTo(navController.graph.startDestinationRoute!!) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                ) {
+
+                    NavHost(navController, startDestination = Screen.Library.route) {
+                        composable(Screen.Library.route) { Library(navController, mangas) }
+                        composable(Screen.Explore.route) { /*FriendsList(navController) */}
+                    }
                 }
             }
         }

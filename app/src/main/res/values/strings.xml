@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">SimpleMangaReader</string>
+    <string name="library">Library</string>
+    <string name="explore">Explore</string>
+    <string name="error_loanding">Image not loaded</string>
 </resources>
