@@ -5,21 +5,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import ru.frozenpriest.simplemangareader.data.mangas
 import ru.frozenpriest.simplemangareader.ui.Screen
 import ru.frozenpriest.simplemangareader.ui.screens.library.Library
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    val items = listOf(
+    private val items = listOf(
         Screen.Library,
         Screen.Explore,
     )
@@ -71,18 +71,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    SimpleMangaReaderTheme {
-        Greeting("Android")
     }
 }
