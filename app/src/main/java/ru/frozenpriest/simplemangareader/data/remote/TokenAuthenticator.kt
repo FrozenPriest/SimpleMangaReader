@@ -17,9 +17,14 @@ class TokenAuthenticator(
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request {
-        sharedPreferences.refresh_token?.let {
-            runBlocking {
-                sharedPreferences.token = repository.get().refreshToken(it).session
+        val token = sharedPreferences.token
+        runBlocking {
+            val tokenIsWorking = (token != null) && (repository.get().checkTokenValid())
+            if (!tokenIsWorking) {
+                sharedPreferences.refresh_token?.let {
+                    sharedPreferences.token = repository.get().refreshToken(it).session
+
+                }
             }
         }
         // Add new header to rejected request and retry it

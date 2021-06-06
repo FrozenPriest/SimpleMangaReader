@@ -16,8 +16,8 @@ interface MangadexApi {
     @POST("auth/login")
     suspend fun authIn(@Body userInfo: UserInfo): AuthResponse
 
-    @POST("auth/check")
-    suspend fun checkToken(@Body token: String): CheckTokenResponse
+    @GET("auth/check")
+    suspend fun checkTokenValid(): CheckTokenResponse
 
     @POST("auth/refresh")
     suspend fun refreshToken(@Body refreshToken: RefreshToken): RefreshTokenResponse

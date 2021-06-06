@@ -36,8 +36,8 @@ class MangaRepository(
         return api.refreshToken(RefreshToken(refreshToken)).token
     }
 
-    suspend fun checkToken(token: String) : Boolean {
-        return api.checkToken(token).isAuthenticated
+    suspend fun checkTokenValid() : Boolean {
+        return api.checkTokenValid().isAuthenticated
     }
 
 }
