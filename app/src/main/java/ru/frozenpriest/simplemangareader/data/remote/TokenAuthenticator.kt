@@ -19,7 +19,7 @@ class TokenAuthenticator(
     override fun authenticate(route: Route?, response: Response): Request {
         val token = sharedPreferences.token
         runBlocking {
-            val tokenIsWorking = (token != null) && (repository.get().checkTokenValid())
+            val tokenIsWorking = (token != null) && (repository.get().checkTokenValid(token))
             if (!tokenIsWorking) {
                 sharedPreferences.refresh_token?.let {
                     sharedPreferences.token = repository.get().refreshToken(it).session

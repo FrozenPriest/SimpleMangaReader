@@ -49,7 +49,7 @@ fun MangaItem(
             .fillMaxWidth()
             .aspectRatio(0.70f)
             .padding(all = 4.dp),
-        elevation = 16.dp,
+        elevation = 8.dp,
         onClick = { onClick() }
     ) {
         val painter = rememberCoilPainter(
@@ -58,7 +58,8 @@ fun MangaItem(
             fadeIn = true
         )
         Box(
-            contentAlignment = Alignment.BottomCenter
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier.fillMaxSize()
         ) {
             Image(
                 modifier = Modifier

@@ -1,9 +1,6 @@
 package ru.frozenpriest.simplemangareader.data.remote
 
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 import ru.frozenpriest.simplemangareader.data.models.UserInfo
 import ru.frozenpriest.simplemangareader.data.remote.responses.AuthResponse
 import ru.frozenpriest.simplemangareader.data.remote.responses.CheckTokenResponse
@@ -17,7 +14,7 @@ interface MangadexApi {
     suspend fun authIn(@Body userInfo: UserInfo): AuthResponse
 
     @GET("auth/check")
-    suspend fun checkTokenValid(): CheckTokenResponse
+    suspend fun checkTokenValid(@Header("Authorization") tokenBearer: String): CheckTokenResponse
 
     @POST("auth/refresh")
     suspend fun refreshToken(@Body refreshToken: RefreshToken): RefreshTokenResponse
