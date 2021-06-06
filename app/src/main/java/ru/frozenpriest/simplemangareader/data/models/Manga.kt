@@ -1,8 +1,8 @@
-package ru.frozenpriest.simplemangareader.data
+package ru.frozenpriest.simplemangareader.data.models
 
 data class Manga(
-    val name: String,
-    val posterLink: String
+    val name: String?,
+    val posterLink: String?
 )
 
 val mangas = listOf(

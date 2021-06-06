@@ -12,9 +12,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import ru.frozenpriest.simplemangareader.data.mangas
 import ru.frozenpriest.simplemangareader.ui.Screen
-import ru.frozenpriest.simplemangareader.ui.screens.library.Library
+import ru.frozenpriest.simplemangareader.ui.screens.library.LibraryScreen
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 
 @AndroidEntryPoint
@@ -65,8 +64,8 @@ class MainActivity : ComponentActivity() {
                 ) {
 
                     NavHost(navController, startDestination = Screen.Library.route) {
-                        composable(Screen.Library.route) { Library(navController, mangas) }
-                        composable(Screen.Explore.route) { /*FriendsList(navController) */}
+                        composable(Screen.Library.route) { LibraryScreen(navController) }
+                        composable(Screen.Explore.route) { /*FriendsList(navController) */ }
                     }
                 }
             }

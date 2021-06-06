@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.coil.rememberCoilPainter
 import ru.frozenpriest.simplemangareader.R
-import ru.frozenpriest.simplemangareader.data.Manga
+import ru.frozenpriest.simplemangareader.data.models.Manga
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 
 @Preview
@@ -41,8 +41,10 @@ fun MangaItem(
     val sizeImage = remember { mutableStateOf(IntSize.Zero) }
     Card(
         modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(0.70f)
             .padding(all = 4.dp),
-        elevation = 8.dp,
+        elevation = 16.dp,
         onClick = { onClick() }
     ) {
         Box(
@@ -50,12 +52,11 @@ fun MangaItem(
         ) {
             Image(
                 modifier = Modifier
-                    .fillMaxSize()
                     .onGloballyPositioned {
                         sizeImage.value = it.size
                     },
                 painter = rememberCoilPainter(
-                    request = "https://picsum.photos/300/500",
+                    request = manga.posterLink,
                     previewPlaceholder = R.drawable.placeholder,
                     fadeIn = true
                 ),
@@ -67,7 +68,7 @@ fun MangaItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 4.dp),
-                text = manga.name,
+                text = manga.name ?:"No name",
                 color = Color.White
             )
 
