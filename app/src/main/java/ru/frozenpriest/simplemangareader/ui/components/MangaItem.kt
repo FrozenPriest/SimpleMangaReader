@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -12,14 +13,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.coil.rememberCoilPainter
+import com.google.accompanist.imageloading.ImageLoadState
 import ru.frozenpriest.simplemangareader.R
 import ru.frozenpriest.simplemangareader.data.models.Manga
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
@@ -47,6 +52,11 @@ fun MangaItem(
         elevation = 16.dp,
         onClick = { onClick() }
     ) {
+        val painter = rememberCoilPainter(
+            request = manga.posterLink,
+            previewPlaceholder = R.drawable.placeholder,
+            fadeIn = true
+        )
         Box(
             contentAlignment = Alignment.BottomCenter
         ) {
@@ -55,20 +65,33 @@ fun MangaItem(
                     .onGloballyPositioned {
                         sizeImage.value = it.size
                     },
-                painter = rememberCoilPainter(
-                    request = manga.posterLink,
-                    previewPlaceholder = R.drawable.placeholder,
-                    fadeIn = true
-                ),
+                painter = painter,
                 contentDescription = manga.name,
                 contentScale = ContentScale.FillWidth
             )
-            ShadowGradientBox(sizeImage)
+            when (painter.loadState) {
+                is ImageLoadState.Success -> ShadowGradientBox(sizeImage)
+                is ImageLoadState.Loading -> {
+                    CircularProgressIndicator(
+                        Modifier
+                            .align(Alignment.Center)
+                            .scale(0.5f))
+                }
+                is ImageLoadState.Error -> {
+                    Image(
+                        painter = painterResource(id = R.drawable.placeholder),
+                        contentDescription = stringResource(id = R.string.error_loading)
+                    )
+                }
+                else -> {
+                }
+
+            }
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 4.dp),
-                text = manga.name ?:"No name",
+                text = manga.name ?: "No name",
                 color = Color.White
             )
 
