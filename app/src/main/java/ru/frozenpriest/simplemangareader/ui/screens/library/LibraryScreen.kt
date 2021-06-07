@@ -1,5 +1,6 @@
 package ru.frozenpriest.simplemangareader.ui.screens.library
 
+import android.os.Bundle
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.GridCells
@@ -58,7 +59,13 @@ fun Library(
         ) {
             items(items = mangaList) { manga ->
                 Timber.e(manga.posterLink)
-                MangaItem(manga = manga) { println("CLAKC") }
+                MangaItem(manga = manga) {
+                    navController.currentBackStackEntry?.arguments =
+                        Bundle().apply {
+                            putParcelable("manga", manga)
+                        }
+                    navController.navigate("manga_details")
+                }
             }
         }
     }

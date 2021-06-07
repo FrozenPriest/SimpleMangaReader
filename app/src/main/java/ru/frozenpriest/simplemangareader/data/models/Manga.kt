@@ -1,9 +1,13 @@
 package ru.frozenpriest.simplemangareader.data.models
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class Manga(
     val name: String?,
     val posterLink: String?
-)
+): Parcelable
 
 val mangas = listOf(
     Manga(name = "Test 1", posterLink = "link1"),
