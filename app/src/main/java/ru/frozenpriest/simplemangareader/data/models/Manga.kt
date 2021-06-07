@@ -9,6 +9,7 @@ data class Manga(
     val posterLink: String?
 ): Parcelable
 
+
 val mangas = listOf(
     Manga(name = "Test 1", posterLink = "link1"),
     Manga(name = "Test 2", posterLink = "link2"),
