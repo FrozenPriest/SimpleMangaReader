@@ -1,4 +1,4 @@
-package ru.frozenpriest.simplemangareader.ui.screens.library
+package ru.frozenpriest.simplemangareader.ui.screens.explore
 
 import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateOf
@@ -12,12 +12,11 @@ import ru.frozenpriest.simplemangareader.repository.MangaRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class LibraryViewModel @Inject constructor(
+class ExploreViewModel @Inject constructor(
     val repository: MangaRepository,
     val sharedPreferences: SharedPreferences
 ) : ViewModel() {
     val mangaFeedList = mutableStateOf<List<Manga>>(listOf())
-
     val isLoading = MutableStateFlow(false)
     val isLoadingMore = MutableStateFlow(false)
 
@@ -28,7 +27,7 @@ class LibraryViewModel @Inject constructor(
     fun getMangas() = viewModelScope.launch {
         isLoading.value = true
         offset = 0
-        val mangas = repository.getUserMangasWithCovers(offset = 0, limit = limit)
+        val mangas = repository.getMangasWithCovers(offset = 0, limit = limit)
         mangaFeedList.value = mangas.mangas
         total = mangas.total
         offset += limit
@@ -37,7 +36,7 @@ class LibraryViewModel @Inject constructor(
 
     fun loadMore() = viewModelScope.launch {
         isLoadingMore.value = true
-        val mangas =  repository.getUserMangasWithCovers(offset = offset, limit = limit)
+        val mangas =  repository.getMangasWithCovers(offset = offset, limit = limit)
         mangaFeedList.value += mangas.mangas
         total = mangas.total
         offset += limit

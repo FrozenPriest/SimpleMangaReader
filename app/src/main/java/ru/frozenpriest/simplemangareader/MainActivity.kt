@@ -18,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.frozenpriest.simplemangareader.data.models.Manga
 import ru.frozenpriest.simplemangareader.ui.Screen
 import ru.frozenpriest.simplemangareader.ui.screens.details.MangaDetailsScreen
+import ru.frozenpriest.simplemangareader.ui.screens.explore.ExploreScreen
 import ru.frozenpriest.simplemangareader.ui.screens.library.LibraryScreen
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 
@@ -79,7 +80,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(Screen.Explore.route) {
                             showBottomNavigation = true
-                            /*FriendsList(navController) */
+                            ExploreScreen(navController = navController)
                         }
                         composable("manga_details") {
                             showBottomNavigation = false

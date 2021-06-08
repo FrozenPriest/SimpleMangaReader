@@ -1,40 +1,12 @@
 package ru.frozenpriest.simplemangareader.ui.screens.library
 
-import android.os.Bundle
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import ru.frozenpriest.simplemangareader.data.models.Manga
-import ru.frozenpriest.simplemangareader.data.models.mangas
-import ru.frozenpriest.simplemangareader.ui.components.MangaItem
-import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
-import timber.log.Timber
-
-@ExperimentalFoundationApi
-@Preview
-@Composable
-private fun LPreview() {
-    SimpleMangaReaderTheme(darkTheme = true) {
-        Library(navController = rememberNavController(), mangas)
-    }
-}
-
+import ru.frozenpriest.simplemangareader.ui.components.MangaGridWithLoadingIndicator
 
 @Composable
 fun LibraryScreen(
@@ -42,44 +14,18 @@ fun LibraryScreen(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val mangaFeedList by remember {
-        viewModel.getMangas()
+        if(viewModel.mangaFeedList.value.isEmpty())
+            viewModel.getMangas()
         viewModel.mangaFeedList
     }
+    val isLoading = viewModel.isLoading.collectAsState()
+    val isLoadingMore = viewModel.isLoadingMore.collectAsState()
 
-    Library(navController = navController, mangaList = mangaFeedList)
+    MangaGridWithLoadingIndicator(
+        navController = navController,
+        mangaList = mangaFeedList,
+        isLoading.value,
+        isLoadingMore.value,
+        lastItemReached = { if (viewModel.canLoadMore()) viewModel.loadMore() }
+    )
 }
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun Library(
-    navController: NavController,
-    mangaList: List<Manga>
-) {
-    Surface(color = MaterialTheme.colors.background) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            if (mangaList.isEmpty()) {
-                CircularProgressIndicator()
-            } else {
-                LazyVerticalGrid(
-                    cells = GridCells.Adaptive(100.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(items = mangaList) { manga ->
-                        Timber.e(manga.posterLink)
-                        MangaItem(manga = manga) {
-                            navController.currentBackStackEntry?.arguments =
-                                Bundle().apply {
-                                    putParcelable("manga", manga)
-                                }
-                            navController.navigate("manga_details")
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
