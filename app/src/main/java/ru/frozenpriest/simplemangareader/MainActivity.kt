@@ -20,6 +20,7 @@ import ru.frozenpriest.simplemangareader.ui.Screen
 import ru.frozenpriest.simplemangareader.ui.screens.details.MangaDetailsScreen
 import ru.frozenpriest.simplemangareader.ui.screens.explore.ExploreScreen
 import ru.frozenpriest.simplemangareader.ui.screens.library.LibraryScreen
+import ru.frozenpriest.simplemangareader.ui.screens.login.LoginScreen
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 
 @AndroidEntryPoint
@@ -73,7 +74,11 @@ class MainActivity : ComponentActivity() {
                     }
                 ) {
 
-                    NavHost(navController, startDestination = Screen.Library.route) {
+                    NavHost(navController, startDestination = "login") {
+                        composable("login") {
+                            showBottomNavigation = false
+                            LoginScreen(navController = navController)
+                        }
                         composable(Screen.Library.route) {
                             showBottomNavigation = true
                             LibraryScreen(navController)

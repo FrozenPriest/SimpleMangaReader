@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.frozenpriest.simplemangareader.data.models.Manga
-import timber.log.Timber
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -41,7 +40,7 @@ fun MangaGridWithLoadingIndicator(
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    val nColumns = maxOf((maxWidth / 100.dp).toInt(), 1)
+                    val nColumns = maxOf((maxWidth / 120.dp).toInt(), 1)
                     val state = rememberLazyListState()
                     if (state.layoutInfo.visibleItemsInfo.isNotEmpty()) {
                         val lastRowIndex = state.layoutInfo.visibleItemsInfo.last().index
@@ -55,7 +54,6 @@ fun MangaGridWithLoadingIndicator(
                         state = state
                     ) {
                         items(items = mangaList) { manga ->
-                            Timber.e(manga.posterLink)
                             MangaItem(manga = manga) {
                                 navController.currentBackStackEntry?.arguments =
                                     Bundle().apply {

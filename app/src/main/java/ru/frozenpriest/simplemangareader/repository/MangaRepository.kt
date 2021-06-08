@@ -6,14 +6,21 @@ import ru.frozenpriest.simplemangareader.data.models.UserInfo
 import ru.frozenpriest.simplemangareader.data.remote.MangadexApi
 import ru.frozenpriest.simplemangareader.data.remote.RefreshToken
 import ru.frozenpriest.simplemangareader.data.remote.responses.Token
+import ru.frozenpriest.simplemangareader.util.Failure
+import ru.frozenpriest.simplemangareader.util.ResponseResult
+import ru.frozenpriest.simplemangareader.util.Success
 import timber.log.Timber
 
 class MangaRepository(
     private val api: MangadexApi
 ) {
 
-    suspend fun authIn(login: String, password: String): Token {
-        return api.authIn(UserInfo(login, password)).token
+    suspend fun authIn(login: String, password: String): ResponseResult<Token> {
+        return try {
+            Success(api.authIn(UserInfo(login, password)).token)
+        }catch (e: Exception) {
+            Failure("Error logging in Mangadex")
+        }
     }
 
     suspend fun refreshToken(refreshToken: String) : Token {

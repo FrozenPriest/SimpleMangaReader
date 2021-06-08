@@ -68,7 +68,7 @@ fun MangaItem(
                     },
                 painter = painter,
                 contentDescription = manga.name,
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.FillBounds
             )
             when (painter.loadState) {
                 is ImageLoadState.Success -> ShadowGradientBox(sizeImage)
@@ -81,7 +81,8 @@ fun MangaItem(
                 is ImageLoadState.Error -> {
                     Image(
                         painter = painterResource(id = R.drawable.placeholder),
-                        contentDescription = stringResource(id = R.string.error_loading)
+                        contentDescription = stringResource(id = R.string.error_loading),
+                        modifier = Modifier.matchParentSize().align(Alignment.TopCenter)
                     )
                 }
                 else -> {
@@ -93,6 +94,7 @@ fun MangaItem(
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 4.dp),
                 text = manga.name ?: "No name",
+                maxLines = 2,
                 color = Color.White
             )
 
