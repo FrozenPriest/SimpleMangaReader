@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
                                         selected = currentRoute == screen.route,
                                         onClick = {
                                             navController.navigate(screen.route) {
-                                                popUpTo(navController.graph.startDestinationRoute!!) {
+                                                popUpTo(Screen.Library.route) {
                                                     saveState = true
                                                 }
                                                 launchSingleTop = true
