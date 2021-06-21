@@ -42,7 +42,6 @@ class MainActivity : ComponentActivity() {
                 var showBottomNavigation by remember {
                     mutableStateOf(true)
                 }
-
                 Scaffold(
                     bottomBar = {
                         if (showBottomNavigation)
