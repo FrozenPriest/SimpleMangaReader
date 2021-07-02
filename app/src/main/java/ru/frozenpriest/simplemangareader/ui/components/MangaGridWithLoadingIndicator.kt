@@ -20,11 +20,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.frozenpriest.simplemangareader.data.models.Manga
 
+/**
+ * Grid interface representing list of mangas.
+ * @param mangas - list of manga
+ * @param isLoading - first grid loading
+ * @param isLoadingMore - is pagination being used
+ * @param lastItemReached is called when last item is reached
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MangaGridWithLoadingIndicator(
     navController: NavController,
-    mangaList: List<Manga>,
+    mangas: List<Manga>,
     isLoading: Boolean,
     isLoadingMore: Boolean,
     lastItemReached: () -> Unit = {}
@@ -44,7 +51,7 @@ fun MangaGridWithLoadingIndicator(
                     val state = rememberLazyListState()
                     if (state.layoutInfo.visibleItemsInfo.isNotEmpty()) {
                         val lastRowIndex = state.layoutInfo.visibleItemsInfo.last().index
-                        if (lastRowIndex >= mangaList.size / nColumns)
+                        if (lastRowIndex >= mangas.size / nColumns)
                             lastItemReached()
                     }
 
@@ -53,7 +60,7 @@ fun MangaGridWithLoadingIndicator(
                         modifier = Modifier.fillMaxSize(),
                         state = state
                     ) {
-                        items(items = mangaList) { manga ->
+                        items(items = mangas) { manga ->
                             MangaItem(manga = manga) {
                                 navController.currentBackStackEntry?.arguments =
                                     Bundle().apply {
@@ -62,7 +69,7 @@ fun MangaGridWithLoadingIndicator(
                                 navController.navigate("manga_details")
                             }
                         }
-                        if (isLoadingMore)
+                        if (isLoadingMore) {
                             item {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     CircularProgressIndicator(
@@ -70,6 +77,7 @@ fun MangaGridWithLoadingIndicator(
                                     )
                                 }
                             }
+                        }
                     }
                 }
             }

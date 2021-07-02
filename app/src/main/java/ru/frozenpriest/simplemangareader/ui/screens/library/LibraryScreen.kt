@@ -23,7 +23,7 @@ fun LibraryScreen(
 
     MangaGridWithLoadingIndicator(
         navController = navController,
-        mangaList = mangaFeedList,
+        mangas = mangaFeedList,
         isLoading.value,
         isLoadingMore.value,
         lastItemReached = { if (viewModel.canLoadMore()) viewModel.loadMore() }

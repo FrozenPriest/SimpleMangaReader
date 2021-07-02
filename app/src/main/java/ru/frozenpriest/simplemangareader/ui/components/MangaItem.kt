@@ -20,11 +20,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.coil.rememberCoilPainter
 import com.google.accompanist.imageloading.ImageLoadState
+import com.google.accompanist.imageloading.LoadPainter
 import ru.frozenpriest.simplemangareader.R
 import ru.frozenpriest.simplemangareader.data.models.Manga
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
@@ -37,6 +39,9 @@ private fun MPreview() {
     }
 }
 
+/**
+ * Card representing manga item, contains name on top of poster image
+ */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MangaItem(
@@ -70,35 +75,44 @@ fun MangaItem(
                 contentDescription = manga.name,
                 contentScale = ContentScale.FillBounds
             )
-            when (painter.loadState) {
-                is ImageLoadState.Success -> ShadowGradientBox(sizeImage)
-                is ImageLoadState.Loading -> {
-                    CircularProgressIndicator(
-                        Modifier
-                            .align(Alignment.Center)
-                            .scale(0.5f))
-                }
-                is ImageLoadState.Error -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.placeholder),
-                        contentDescription = stringResource(id = R.string.error_loading),
-                        modifier = Modifier.matchParentSize().align(Alignment.TopCenter)
-                    )
-                }
-                else -> {
-                }
-
-            }
+            RepresentImageLoadState(painter, sizeImage)
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 4.dp),
-                text = manga.name ?: "No name",
+                text = manga.name ?: stringResource(R.string.no_name),
                 maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 color = Color.White
             )
-
         }
+    }
+}
+
+@Composable
+private fun BoxScope.RepresentImageLoadState(
+    painter: LoadPainter<Any>,
+    sizeImage: MutableState<IntSize>
+) {
+    when (painter.loadState) {
+        is ImageLoadState.Success -> ShadowGradientBox(sizeImage)
+        is ImageLoadState.Loading -> {
+            CircularProgressIndicator(
+                Modifier
+                    .align(Alignment.Center)
+                    .scale(0.5f)
+            )
+        }
+        is ImageLoadState.Error -> {
+            Image(
+                painter = painterResource(id = R.drawable.placeholder),
+                contentDescription = stringResource(id = R.string.error_loading),
+                modifier = Modifier
+                    .matchParentSize()
+                    .align(Alignment.TopCenter)
+            )
+        }
+        else -> { }
     }
 }
 

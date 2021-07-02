@@ -1,6 +1,5 @@
 package ru.frozenpriest.simplemangareader.ui.screens.details
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -20,7 +19,6 @@ import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
  * @param manga - manga to be displayed
  * @param navController - navigation controller
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MangaDetailsScreen(
     navController: NavController,

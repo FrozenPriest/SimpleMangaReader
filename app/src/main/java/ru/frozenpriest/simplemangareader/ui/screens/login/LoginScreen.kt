@@ -21,6 +21,9 @@ import ru.frozenpriest.simplemangareader.R
 import ru.frozenpriest.simplemangareader.ui.Screen
 import ru.frozenpriest.simplemangareader.ui.components.rememberState
 
+/*
+todo make it look nice
+ */
 @Composable
 fun LoginScreen(
     navController: NavController,

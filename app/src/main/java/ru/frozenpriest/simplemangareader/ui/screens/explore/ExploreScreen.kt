@@ -37,7 +37,7 @@ fun ExploreScreen(
     val isLoadingMore = viewModel.isLoadingMore.collectAsState()
 
     MangaGridWithLoadingIndicator(navController = navController,
-        mangaList = mangaList,
+        mangas = mangaList,
         isLoading.value,
         isLoadingMore.value,
         lastItemReached = { if (viewModel.canLoadMore()) viewModel.loadMore() }
