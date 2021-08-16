@@ -32,5 +32,9 @@ interface MangadexApi {
         @Query("limit") limit: Int = 20,
     ): MangaResponse
 
-
+    @GET("chapter")
+    suspend fun getMangaChapters(
+        @Query("manga") mangaId: String,
+        @Query("translatedLanguage[]") translatedLanguages: ArrayList<String> = arrayListOf("en", "ru")
+    ): ChaptersResponse
 }

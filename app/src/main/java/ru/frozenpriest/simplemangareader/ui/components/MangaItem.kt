@@ -35,7 +35,7 @@ import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 @Composable
 private fun MPreview() {
     SimpleMangaReaderTheme {
-        MangaItem(manga = Manga("Test mange", "link"), onClick = {})
+        MangaItem(manga = Manga("Test mange", "link", "null"), onClick = {})
     }
 }
 

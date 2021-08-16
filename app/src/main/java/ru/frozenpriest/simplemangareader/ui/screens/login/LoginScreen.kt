@@ -32,7 +32,7 @@ fun LoginScreen(
     val authSuccessful = viewModel.authSuccessful.collectAsState()
     if (authSuccessful.value) {
         navController.navigate(Screen.Library.route) {
-            popUpTo("login") { inclusive = true }
+            //popUpTo("login") { inclusive = true }
         }
     } else {
         Box(
