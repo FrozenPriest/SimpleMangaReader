@@ -89,5 +89,14 @@ class MangaRepository(
         return list
     }
 
+    suspend fun getMangaChapterImages(
+        chapterId: String
+    ): List<String> {
+        val chapterData = api.getChapterData(chapterId)
+        val baseUrl = api.getChapterBaseUrl(chapterId).baseUrl
 
+        return chapterData.data.attributes.data.map { fileName ->
+            "$baseUrl/data/${chapterData.data.attributes.hash}/${fileName}"
+        }
+    }
 }

@@ -21,6 +21,7 @@ import ru.frozenpriest.simplemangareader.ui.screens.details.MangaDetailsScreen
 import ru.frozenpriest.simplemangareader.ui.screens.explore.ExploreScreen
 import ru.frozenpriest.simplemangareader.ui.screens.library.LibraryScreen
 import ru.frozenpriest.simplemangareader.ui.screens.login.LoginScreen
+import ru.frozenpriest.simplemangareader.ui.screens.viewer.ChapterViewer
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 
 @AndroidEntryPoint
@@ -93,6 +94,15 @@ class MainActivity : ComponentActivity() {
                                     MangaDetailsScreen(
                                         navController,
                                         manga
+                                    )
+                                }
+                        }
+                        composable("reader") {
+                            showBottomNavigation = false
+                            navController.previousBackStackEntry?.arguments?.getString("chapterId")
+                                ?.let { chapterId ->
+                                    ChapterViewer(
+                                        chapterId
                                     )
                                 }
                         }

@@ -37,4 +37,15 @@ interface MangadexApi {
         @Query("manga") mangaId: String,
         @Query("translatedLanguage[]") translatedLanguages: ArrayList<String> = arrayListOf("en", "ru")
     ): ChaptersResponse
+
+    @GET("chapter/{id}")
+    suspend fun getChapterData(
+        @Path("id") chapterId: String
+    ): ChapterDataResponse
+
+    @GET("at-home/server/{id}")
+    suspend fun getChapterBaseUrl(
+        @Path("id") chapterId: String
+    ): ChapterBaseUrlResponse
+
 }
