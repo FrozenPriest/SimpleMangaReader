@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                     }
                 ) {
 
-                    NavHost(navController, startDestination = Screen.Library.route) {
+                    NavHost(navController, startDestination = "login") {
                         composable("login") {
                             showBottomNavigation = false
                             LoginScreen(navController = navController)

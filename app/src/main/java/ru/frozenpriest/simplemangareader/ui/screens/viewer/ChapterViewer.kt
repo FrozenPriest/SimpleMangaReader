@@ -1,6 +1,9 @@
 package ru.frozenpriest.simplemangareader.ui.screens.viewer
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,9 +14,18 @@ import androidx.compose.material.icons.filled.Landscape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 import com.google.accompanist.imageloading.ImageLoadState
@@ -23,6 +35,7 @@ import com.google.accompanist.pager.rememberPagerState
 import ru.frozenpriest.simplemangareader.ui.components.rememberState
 import ru.frozenpriest.simplemangareader.ui.screens.viewer.ChapterViewerOrientation.Horizontal
 import ru.frozenpriest.simplemangareader.ui.screens.viewer.ChapterViewerOrientation.Webtoon
+import timber.log.Timber
 
 @Composable
 fun ChapterViewer(
@@ -135,7 +148,7 @@ private fun ChapterPage(chapterLink: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .requiredHeightIn(min = 400.dp),
+            .requiredHeightIn(min = 100.dp),
         contentAlignment = Alignment.Center
     ) {
         when (painter.loadState) {
@@ -147,11 +160,9 @@ private fun ChapterPage(chapterLink: String) {
                 )
             }
             is ImageLoadState.Success -> {
-                Image(
+                ZoomableImage(
                     modifier = Modifier.fillMaxWidth(),
-                    painter = painter,
-                    contentScale = ContentScale.FillWidth,
-                    contentDescription = "Chapter page"
+                    painter = painter
                 )
             }
             is ImageLoadState.Error -> {
@@ -162,6 +173,109 @@ private fun ChapterPage(chapterLink: String) {
         }
     }
 }
+
+@Composable
+fun ZoomableImage(
+    modifier: Modifier = Modifier,
+    painter: Painter
+) {
+    var centerPoint by remember { mutableStateOf(Offset.Zero) }
+
+    var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
+
+    val scaleAnim by animateFloatAsState(
+        targetValue = scale
+    ) {
+        if (scale == 1f) offset = Offset.Zero
+    }
+
+    val state = rememberTransformableState { zoomChange, offsetChange, _ ->
+        scale *= zoomChange
+        scale = scale.coerceIn(1f, 5f)
+
+        offset += offsetChange
+        offset = clampOffset(centerPoint, offset, scale)
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RectangleShape)
+            .onGloballyPositioned { coordinates ->
+                val size = coordinates.size.toSize() / 2.0f
+                centerPoint = Offset(size.width, size.height)
+            }
+            .background(Color.Gray)
+            .transformable(state)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onDoubleTap = {
+                        Timber.e("Double tap working")
+                        when {
+                            scale > 2f -> {
+                                scale = 1f
+                            }
+                            else -> {
+                                scale = 3f
+
+                                offset = (centerPoint - it) * (scale - 1)
+                                offset = clampOffset(centerPoint, offset, scale)
+                            }
+                        }
+
+                    }
+                )
+            }
+            .scrollable(
+                state = rememberScrollableState { delta ->
+                    offset += Offset(delta, 0f)
+                    val preClamp = offset
+                    offset = clampOffset(centerPoint, offset, scale)
+
+                    delta - (preClamp.x - offset.x)
+                },
+                orientation = Orientation.Horizontal
+            )
+            .scrollable(
+                state = rememberScrollableState { delta ->
+                    offset += Offset(0f, delta)
+                    val preClamp = offset
+                    offset = clampOffset(centerPoint, offset, scale)
+
+                    delta - (preClamp.y - offset.y)
+                },
+                orientation = Orientation.Vertical
+            )
+    ) {
+        Image(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    translationX = offset.x
+                    translationY = offset.y
+
+                    scaleX = scaleAnim
+                    scaleY = scaleAnim
+                }
+                ,
+            painter = painter,
+            contentScale = ContentScale.FillWidth,
+            contentDescription = "Chapter page"
+        )
+    }
+}
+
+fun clampOffset(centerPoint: Offset, offset: Offset, scale: Float): Offset {
+    val maxPosition = centerPoint * (scale - 1)
+
+    return offset.copy(
+        x = offset.x.coerceIn(-maxPosition.x, maxPosition.x),
+        y = offset.y.coerceIn(-maxPosition.y, maxPosition.y)
+    )
+}
+
 
 enum class ChapterViewerOrientation {
     Webtoon,
