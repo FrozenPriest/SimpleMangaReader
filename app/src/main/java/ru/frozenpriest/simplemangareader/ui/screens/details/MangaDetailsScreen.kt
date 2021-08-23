@@ -66,7 +66,8 @@ private fun Chapters(
                     onClick = {
                         navController.currentBackStackEntry?.arguments =
                             Bundle().apply {
-                                putString("chapterId", item.id)
+                                putParcelable("chapterInfo", item)
+                                putParcelable("manga", manga)
                             }
                         navController.navigate("reader")
                     }

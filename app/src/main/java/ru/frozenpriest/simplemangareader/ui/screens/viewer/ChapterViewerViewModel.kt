@@ -14,13 +14,13 @@ class ChapterViewerViewModel @Inject constructor(
     val repository: MangaRepository,
 ) : ViewModel() {
 
-    val chapters = MutableStateFlow(emptyList<String>())
+    val pages = MutableStateFlow(emptyList<String>())
     val loading = MutableStateFlow(true)
 
     fun loadChapterImages(id: String) = viewModelScope.launch {
         loading.value = true
-        chapters.value = repository.getMangaChapterImages(id)
-        Timber.e(chapters.value.joinToString("\n"))
+        pages.value = repository.getMangaChapterImages(id)
+        Timber.e(pages.value.joinToString("\n"))
         loading.value = false
     }
 }

@@ -32,6 +32,8 @@ import com.google.accompanist.imageloading.ImageLoadState
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import ru.frozenpriest.simplemangareader.data.models.ChapterInfo
+import ru.frozenpriest.simplemangareader.data.models.Manga
 import ru.frozenpriest.simplemangareader.ui.components.rememberState
 import ru.frozenpriest.simplemangareader.ui.screens.viewer.ChapterViewerOrientation.Horizontal
 import ru.frozenpriest.simplemangareader.ui.screens.viewer.ChapterViewerOrientation.Webtoon
@@ -39,22 +41,23 @@ import timber.log.Timber
 
 @Composable
 fun ChapterViewer(
-    chapterId: String,
+    manga: Manga,
+    chapterInfo: ChapterInfo,
     viewModel: ChapterViewerViewModel = hiltViewModel()
 ) {
     LaunchedEffect(key1 = "load") {
-        viewModel.loadChapterImages(chapterId)
+        viewModel.loadChapterImages(chapterInfo.id)
     }
-    val chapters = viewModel.chapters.collectAsState()
+    val pages = viewModel.pages.collectAsState()
     val loading = viewModel.loading.collectAsState()
+    var currentPage by rememberState(value = 1)
     if (loading.value) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                Modifier
-                    .scale(0.5f)
+                Modifier.scale(0.5f)
             )
         }
     } else {
@@ -70,7 +73,40 @@ fun ChapterViewer(
                 }
             }
         ) {
-            Reader(orientation = orientation, chapters.value)
+            var overlayVisible by rememberState(value = false)
+            var targetPage by rememberState(value = 1)
+
+            var scrollFinished by rememberState(value = true)
+            scrollFinished = scrollFinished || (currentPage == targetPage)
+
+            if(scrollFinished) {
+                targetPage = currentPage
+            }
+
+            Box {
+                Reader(
+                    currentPage = currentPage,
+                    targetPage = targetPage,
+                    onPageChange = { newPage -> currentPage = newPage },
+                    openCloseOverlay = { overlayVisible = !overlayVisible },
+                    orientation = orientation,
+                    items = pages.value
+                )
+                ViewerOverlay(
+                    visible = overlayVisible,
+                    mangaName = manga.name ?: "",
+                    chapterName = chapterInfo.title,
+                    currentPage = targetPage,
+                    chapterSize = pages.value.size,
+                    onPageChange = { newPage ->
+                        targetPage = newPage
+                        scrollFinished = false
+                    },
+                    previousChapter = { /*TODO*/ },
+                    nextChapter = { /*TODO*/ },
+                    back = {/*TODO*/}
+                )
+            }
         }
     }
 }
@@ -78,12 +114,24 @@ fun ChapterViewer(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun Reader(
+    currentPage: Int,
+    targetPage: Int,
+    onPageChange: (Int) -> Unit,
+    openCloseOverlay: () -> Unit,
     orientation: ChapterViewerOrientation,
     items: List<String>,
 ) {
     when (orientation) {
         Webtoon -> {
             val listState = rememberLazyListState(initialFirstVisibleItemIndex = 1)
+
+            if (listState.firstVisibleItemIndex != currentPage) {
+                onPageChange(listState.firstVisibleItemIndex)
+            }
+            LaunchedEffect(key1 = targetPage) {
+                listState.animateScrollToItem(targetPage)
+            }
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = listState
@@ -100,7 +148,10 @@ fun Reader(
                     }
                 }
                 items(items) { chapterLink ->
-                    ChapterPage(chapterLink)
+                    ChapterPage(
+                        chapterLink = chapterLink,
+                        openCloseOverlay = { openCloseOverlay() }
+                    )
                 }
                 item {
                     Box(
@@ -121,6 +172,14 @@ fun Reader(
                 initialPage = 1,
                 initialOffscreenLimit = 3
             )
+
+            if (pagerState.currentPage != currentPage) {
+                onPageChange(pagerState.currentPage)
+            }
+            LaunchedEffect(key1 = targetPage) {
+                pagerState.animateScrollToPage(targetPage)
+            }
+
             HorizontalPager(state = pagerState) { page ->
                 when (page) {
                     0 -> {
@@ -131,7 +190,10 @@ fun Reader(
                     }
                     else -> {
                         val chapterLink = items[page - 1]
-                        ChapterPage(chapterLink)
+                        ChapterPage(
+                            chapterLink = chapterLink,
+                            openCloseOverlay = { openCloseOverlay() }
+                        )
                     }
                 }
             }
@@ -140,7 +202,10 @@ fun Reader(
 }
 
 @Composable
-private fun ChapterPage(chapterLink: String) {
+private fun ChapterPage(
+    chapterLink: String,
+    openCloseOverlay: () -> Unit
+) {
     val painter = rememberCoilPainter(
         request = chapterLink,
         fadeIn = true
@@ -162,7 +227,8 @@ private fun ChapterPage(chapterLink: String) {
             is ImageLoadState.Success -> {
                 ZoomableImage(
                     modifier = Modifier.fillMaxWidth(),
-                    painter = painter
+                    painter = painter,
+                    onClick = { openCloseOverlay() }
                 )
             }
             is ImageLoadState.Error -> {
@@ -177,7 +243,8 @@ private fun ChapterPage(chapterLink: String) {
 @Composable
 fun ZoomableImage(
     modifier: Modifier = Modifier,
-    painter: Painter
+    painter: Painter,
+    onClick: (() -> Unit) = {}
 ) {
     var centerPoint by remember { mutableStateOf(Offset.Zero) }
 
@@ -211,6 +278,9 @@ fun ZoomableImage(
             .transformable(state)
             .pointerInput(Unit) {
                 detectTapGestures(
+                    onTap = {
+                        onClick()
+                    },
                     onDoubleTap = {
                         Timber.e("Double tap working")
                         when {
@@ -251,15 +321,14 @@ fun ZoomableImage(
     ) {
         Image(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .graphicsLayer {
                     translationX = offset.x
                     translationY = offset.y
 
                     scaleX = scaleAnim
                     scaleY = scaleAnim
-                }
-                ,
+                },
             painter = painter,
             contentScale = ContentScale.FillWidth,
             contentDescription = "Chapter page"

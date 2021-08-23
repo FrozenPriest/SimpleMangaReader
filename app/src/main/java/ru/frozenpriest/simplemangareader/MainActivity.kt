@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import ru.frozenpriest.simplemangareader.data.models.ChapterInfo
 import ru.frozenpriest.simplemangareader.data.models.Manga
 import ru.frozenpriest.simplemangareader.ui.Screen
 import ru.frozenpriest.simplemangareader.ui.screens.details.MangaDetailsScreen
@@ -99,12 +100,15 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("reader") {
                             showBottomNavigation = false
-                            navController.previousBackStackEntry?.arguments?.getString("chapterId")
-                                ?.let { chapterId ->
-                                    ChapterViewer(
-                                        chapterId
-                                    )
+
+                            val bundle = navController.previousBackStackEntry?.arguments
+                            val chapterInfo = bundle?.getParcelable<ChapterInfo>("chapterInfo")
+                            val manga = bundle?.getParcelable<Manga>("manga")
+                            chapterInfo?.let {
+                                manga?.let {
+                                    ChapterViewer(manga, chapterInfo)
                                 }
+                            }
                         }
                     }
                 }

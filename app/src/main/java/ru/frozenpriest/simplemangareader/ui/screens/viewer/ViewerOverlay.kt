@@ -7,7 +7,10 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Slider
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowLeft
@@ -30,9 +33,18 @@ import ru.frozenpriest.simplemangareader.ui.theme.Purple200
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 import kotlin.math.roundToInt
 
+/**
+ * Manga viewer overlay with top and bottom parts
+ * @param visible - overlay visibility
+ * @param mangaName - manga name shown on top bar
+ * @param chapterName - chapter name
+ * @param currentPage - current shown page, min - 1
+ * @param chapterSize - amount of pages in current chapter
+ * @param onPageChange - slider page change
+ */
 @Composable
 fun ViewerOverlay(
-    //visible: Boolean
+    visible: Boolean,
     mangaName: String,
     chapterName: String,
     currentPage: Int,
@@ -42,35 +54,21 @@ fun ViewerOverlay(
     nextChapter: () -> Unit,
     back: () -> Unit
 ) {
-    var visible by rememberState(value = true)
-
-
-    /*
-    что должно быть:
-        прогресс чтения с возможностью перехода
-        название главы сверху
-        следующая/предыдущая глава
-        настройки
-     */
 
     Box(modifier = Modifier.fillMaxSize()) {
-        //Top
-        TopBar(visible, back, mangaName, chapterName)
-
-        Button(
-            onClick = { visible = !visible },
-            modifier = Modifier.align(Alignment.Center)
-        ) {
-
-        }
-        //Bottom
+        TopBar(
+            visible = visible,
+            back = back,
+            mangaName = mangaName,
+            chapterName = chapterName
+        )
         BottomBar(
-            visible,
-            previousChapter,
-            currentPage,
-            onPageChange,
-            chapterSize,
-            nextChapter
+            visible = visible,
+            previousChapter = previousChapter,
+            currentPage = currentPage,
+            onPageChange = onPageChange,
+            chapterSize = chapterSize,
+            nextChapter = nextChapter
         )
     }
 }
@@ -204,6 +202,7 @@ fun Test() {
     SimpleMangaReaderTheme {
         var page by rememberState(value = 1)
         ViewerOverlay(
+            true,
             "The reincarnation magician",
             "Ch. 57 WTF",
             page,
