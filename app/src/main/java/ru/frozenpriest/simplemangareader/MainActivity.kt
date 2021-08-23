@@ -3,6 +3,9 @@ package ru.frozenpriest.simplemangareader
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.*
 import androidx.compose.runtime.getValue
@@ -10,10 +13,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import dagger.hilt.android.AndroidEntryPoint
 import ru.frozenpriest.simplemangareader.data.models.ChapterInfo
 import ru.frozenpriest.simplemangareader.data.models.Manga
@@ -25,6 +28,7 @@ import ru.frozenpriest.simplemangareader.ui.screens.login.LoginScreen
 import ru.frozenpriest.simplemangareader.ui.screens.viewer.ChapterViewer
 import ru.frozenpriest.simplemangareader.ui.theme.SimpleMangaReaderTheme
 
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val items = listOf(
@@ -33,14 +37,14 @@ class MainActivity : ComponentActivity() {
     )
 
 
+    @ExperimentalAnimationApi
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
 
             SimpleMangaReaderTheme {
-                // A surface container using the 'background' color from the theme
-                val navController = rememberNavController()
+                val navController = rememberAnimatedNavController()
                 var showBottomNavigation by remember {
                     mutableStateOf(true)
                 }
@@ -75,7 +79,7 @@ class MainActivity : ComponentActivity() {
                     }
                 ) {
 
-                    NavHost(navController, startDestination = "login") {
+                    AnimatedNavHost(navController, startDestination = "login") {
                         composable("login") {
                             showBottomNavigation = false
                             LoginScreen(navController = navController)
@@ -88,7 +92,33 @@ class MainActivity : ComponentActivity() {
                             showBottomNavigation = true
                             ExploreScreen(navController = navController)
                         }
-                        composable("manga_details") {
+                        composable(
+                            route = "manga_details",
+                            enterTransition = { initial, _ ->
+                                if (initial.destination.route != "reader")
+                                    slideIntoContainer(
+                                        AnimatedContentScope.SlideDirection.Up,
+                                        animationSpec = tween(700)
+                                    )
+                                else
+                                    null
+                            },
+                            popEnterTransition = { initial, _ ->
+                                if (initial.destination.route != "reader")
+                                    slideIntoContainer(
+                                        AnimatedContentScope.SlideDirection.Up,
+                                        animationSpec = tween(700)
+                                    )
+                                else
+                                    null
+                            },
+                            popExitTransition = { _, _ ->
+                                slideOutOfContainer(
+                                    AnimatedContentScope.SlideDirection.Down,
+                                    animationSpec = tween(700)
+                                )
+                            }
+                        ) {
                             showBottomNavigation = false
                             navController.previousBackStackEntry?.arguments?.getParcelable<Manga>("manga")
                                 ?.let { manga ->
@@ -98,7 +128,20 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                         }
-                        composable("reader") {
+                        composable("reader",
+                            enterTransition = { initial, _ ->
+                                slideIntoContainer(
+                                    AnimatedContentScope.SlideDirection.Left,
+                                    animationSpec = tween(700)
+                                )
+                            },
+                            popExitTransition = { _, _ ->
+                                slideOutOfContainer(
+                                    AnimatedContentScope.SlideDirection.Right,
+                                    animationSpec = tween(700)
+                                )
+                            },
+                        ) {
                             showBottomNavigation = false
 
                             val bundle = navController.previousBackStackEntry?.arguments
